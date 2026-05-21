@@ -7,12 +7,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Momentum"/>
 <meta name="theme-color" content="#080808"/>
-<link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;Momentum&quot;,&quot;short_name&quot;:&quot;Momentum&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;%23080808&quot;,&quot;theme_color&quot;:&quot;%23080808&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23080808' rx='20'/><text y='.9em' font-size='70' x='15'>🌿</text></svg>&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}"/>
 <title>Momentum</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#root{width:100%;height:100%;height:100dvh;background:#080808;overflow:hidden}
-body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+html{width:100%;height:100%;height:100dvh}
+body{width:100%;height:100%;height:100dvh;background:#080808;overflow:hidden;position:fixed;top:0;left:0;right:0;bottom:0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;-webkit-font-smoothing:antialiased}
+#root{width:100%;height:100%;height:100dvh;background:#080808;overflow:hidden}
 input,select,button{font-family:inherit}
 ::-webkit-scrollbar{display:none}
 @keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
@@ -31,9 +31,6 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;bac
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
 <script type="text/babel">
 const { useState, useEffect, useRef } = React;
-
-function lsGet(k,fb){try{const v=localStorage.getItem(k);return v!==null?JSON.parse(v):fb;}catch{return fb;}}
-function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
 
 const C = {
   bg:"#080808",card:"#161616",card2:"#1c1c1c",
@@ -100,7 +97,6 @@ const EMOJIS=["","","","","","","","","","","","","","","","","","","","","","",
 const INIT=[];
 const MG={cal:2200,protein:150,carbs:220,fat:70,fiber:30};
 const SG=8;
-const WG=8;
 const FDBDB={
   "chicken breast":{cal:165,protein:31,carbs:0, fat:3.6,fiber:0,  serving:"100g",     icon:""},
   "oats":          {cal:389,protein:17,carbs:66,fat:7,  fiber:11, serving:"100g",     icon:""},
@@ -121,7 +117,7 @@ function fh(h){const hh=Math.floor(h),m=Math.round((h-hh)*60);return`${hh}h ${St
 function ft(d){if(!d)return"--:--";return d.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});}
 
 // -- HOME ---------------------------------------------------------------------
-function HomeScreen({habits,setHabits,userName,water,setWater,waterGoal}){
+function HomeScreen({habits,setHabits,userName}){
   const done=habits.filter(h=>h.done).length,pct=habits.length?done/habits.length:0;
   const xp=habits.filter(h=>h.done).reduce((s,h)=>s+h.xp,0);
   const today=new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"}).toUpperCase();
@@ -129,46 +125,30 @@ function HomeScreen({habits,setHabits,userName,water,setWater,waterGoal}){
   const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
 
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+    <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <div>
         <p style={{color:C.sub,fontSize:13,letterSpacing:"0.06em",marginBottom:4}}>{today}</p>
-        <h1 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.15,color:C.text,margin:0}}>{greeting},<br/><span style={{color:C.neon}}>{userName}.</span></h1>
+        <h1 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.15,color:C.text,margin:0}}>{greeting},<br/><span style={{color:C.neon}}>{userName}.</span></h1>
       </div>
 
       {/* Progress card */}
-      <div style={{background:"linear-gradient(145deg,#1a1a1a,#111)",border:`1px solid ${C.borderHi}`,borderRadius:22,padding:18,display:"flex",alignItems:"center",gap:16}}>
-        <Ring pct={pct} size={96} stroke={8} color={C.neon}>
-          <span style={{fontSize:20,fontWeight:900,color:C.text}}>{Math.round(pct*100)}%</span>
+      <div style={{background:"linear-gradient(145deg,#1a1a1a,#111)",border:`1px solid ${C.borderHi}`,borderRadius:24,padding:22,display:"flex",alignItems:"center",gap:18}}>
+        <Ring pct={pct} size={108} stroke={9} color={C.neon}>
+          <span style={{fontSize:22,fontWeight:900,color:C.text}}>{Math.round(pct*100)}%</span>
           <span style={{fontSize:10,color:C.sub}}>today</span>
         </Ring>
         <div style={{flex:1}}>
-          <div style={{fontSize:14,fontWeight:700,color:C.text,marginBottom:3}}>{done}/{habits.length} habits done</div>
-          <div style={{fontSize:12,color:C.sub,marginBottom:12}}>{habits.length===0?"Add your first habit ->":`${habits.length-done} remaining`}</div>
+          <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:4}}>{done}/{habits.length} habits done</div>
+          <div style={{fontSize:13,color:C.sub,marginBottom:14}}>{habits.length===0?"Add your first habit ->":`${habits.length-done} remaining`}</div>
           <div style={{display:"flex",gap:8}}>
-            <div style={{background:C.neonD,border:"1px solid rgba(200,245,58,0.2)",borderRadius:10,padding:"5px 12px",textAlign:"center"}}>
-              <div style={{fontSize:15,fontWeight:800,color:C.neon}}>{xp}</div><div style={{fontSize:10,color:C.sub}}>XP today</div>
+            <div style={{background:C.neonD,border:"1px solid rgba(200,245,58,0.2)",borderRadius:12,padding:"6px 14px",textAlign:"center"}}>
+              <div style={{fontSize:17,fontWeight:800,color:C.neon}}>{xp}</div><div style={{fontSize:10,color:C.sub}}>XP today</div>
             </div>
-            <div style={{background:C.purpleD,border:"1px solid rgba(168,85,247,0.2)",borderRadius:10,padding:"5px 12px",textAlign:"center"}}>
-              <div style={{fontSize:15,fontWeight:800,color:C.purple}}>Lv.1</div><div style={{fontSize:10,color:C.sub}}>Rank</div>
+            <div style={{background:C.purpleD,border:"1px solid rgba(168,85,247,0.2)",borderRadius:12,padding:"6px 14px",textAlign:"center"}}>
+              <div style={{fontSize:17,fontWeight:800,color:C.purple}}>Lv.1</div><div style={{fontSize:10,color:C.sub}}>Rank</div>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Water tracker */}
-      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:18,padding:"14px 16px",display:"flex",alignItems:"center",gap:14}}>
-        <Ring pct={water/waterGoal} size={68} stroke={6} color={C.blue}>
-          <span style={{fontSize:17,fontWeight:900,color:C.blue}}>{water}</span>
-        </Ring>
-        <div style={{flex:1}}>
-          <div style={{fontSize:13,fontWeight:700,color:C.text,marginBottom:2}}>{water}/{waterGoal} cups today</div>
-          <div style={{fontSize:11,color:C.sub,marginBottom:9}}>Daily hydration goal</div>
-          <div style={{display:"flex",gap:6}}>
-            <button onClick={()=>setWater(w=>Math.max(0,w-1))} style={{width:30,height:30,borderRadius:"50%",border:"1px solid rgba(255,255,255,0.1)",background:"#1e1e1e",color:C.sub,cursor:"pointer",fontSize:16,fontWeight:700}}>−</button>
-            <button onClick={()=>setWater(w=>Math.min(waterGoal+4,w+1))} style={{flex:1,padding:"6px 0",borderRadius:99,border:"none",background:`rgba(59,130,246,0.18)`,color:C.blue,fontWeight:800,fontSize:13,cursor:"pointer",boxShadow:"0 0 10px rgba(59,130,246,0.2)"}}>+ 1 Cup</button>
-          </div>
-        </div>
-        {water>=waterGoal&&<div style={{fontSize:18}}>💧</div>}
       </div>
 
       {/* Empty state or habit list */}
@@ -265,26 +245,15 @@ function HabitsScreen({habits,setHabits,onAdd}){
   );
 }
 
-const CAT_DEFAULT_ICONS={Fitness:"🏋️",Nutrition:"🥗",Productivity:"💼",Wellness:"❤️",Lifestyle:"☀️"};
-
 // -- ADD HABIT MODAL ----------------------------------------------------------
 function AddHabitModal({onSave,onClose}){
-  const [form,setForm]=useState({name:"",cat:"Fitness",icon:CAT_DEFAULT_ICONS["Fitness"],target:"",freq:"Daily",xp:"30"});
+  const [form,setForm]=useState({name:"",cat:"Fitness",icon:"",target:"",freq:"Daily",xp:"30"});
   const [picker,setPicker]=useState(false);
-  const [customDays,setCustomDays]=useState([]);
-  const DAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   const set=(k,v)=>setForm(p=>({...p,[k]:v}));
-  function setCategory(cat){
-    set("cat",cat);
-    // clear custom emoji so SVG default for new category shows
-    if(!form.icon||Object.values(CAT_DEFAULT_ICONS).includes(form.icon)) set("icon","");
-  }
-  function toggleDay(d){setCustomDays(p=>p.includes(d)?p.filter(x=>x!==d):[...p,d]);}
   function save(){
     if(!form.name.trim())return;
     const cfg=CAT[form.cat];
-    const freqLabel=form.freq==="Custom"&&customDays.length?`Custom (${customDays.join(",")})`:form.freq;
-    onSave({id:Date.now(),name:form.name.trim(),icon:form.icon||CAT_DEFAULT_ICONS[form.cat],cat:form.cat,color:cfg.color,bg:cfg.bg,streak:0,done:false,target:form.target||"1x",progress:0,xp:Number(form.xp)||30,freq:freqLabel,customDays});
+    onSave({id:Date.now(),name:form.name.trim(),icon:form.icon,cat:form.cat,color:cfg.color,bg:cfg.bg,streak:0,done:false,target:form.target||"1x",progress:0,xp:Number(form.xp)||30,freq:form.freq});
     onClose();
   }
   return(
@@ -295,13 +264,11 @@ function AddHabitModal({onSave,onClose}){
         <div style={{width:38,height:4,background:"rgba(255,255,255,0.16)",borderRadius:99,margin:"13px auto 18px"}}/>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:22}}>
           <span style={{fontSize:21,fontWeight:900,color:C.text}}>New Habit</span>
-          <button onClick={onClose} style={{width:32,height:32,borderRadius:"50%",border:"none",background:"rgba(255,255,255,0.08)",color:C.sub,cursor:"pointer",fontSize:16}}>×</button>
+          <button onClick={onClose} style={{width:32,height:32,borderRadius:"50%",border:"none",background:"rgba(255,255,255,0.08)",color:C.sub,cursor:"pointer",fontSize:16}}>x</button>
         </div>
         <div style={{marginBottom:20}}>
           <div style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.09em",marginBottom:9}}>ICON</div>
-          <button onClick={()=>setPicker(p=>!p)} style={{width:60,height:60,borderRadius:17,border:`2px solid ${picker?C.neon:C.borderHi}`,background:CAT[form.cat].bg,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:26}}>
-            {form.icon ? form.icon : CICO[form.cat]?CICO[form.cat](CAT[form.cat].color,26):null}
-          </button>
+          <button onClick={()=>setPicker(p=>!p)} style={{width:60,height:60,borderRadius:17,border:`2px solid ${picker?C.neon:C.borderHi}`,background:C.neonD,fontSize:28,cursor:"pointer"}}>{form.icon}</button>
           {picker&&<div style={{marginTop:11,display:"flex",flexWrap:"wrap",gap:7}}>
             {EMOJIS.map(e=><button key={e} onClick={()=>{set("icon",e);setPicker(false);}} style={{width:43,height:43,borderRadius:12,border:`1px solid ${form.icon===e?C.neon:C.border}`,background:form.icon===e?C.neonD:"#1e1e1e",fontSize:21,cursor:"pointer"}}>{e}</button>)}
           </div>}
@@ -315,9 +282,7 @@ function AddHabitModal({onSave,onClose}){
           <div style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.09em",marginBottom:9}}>CATEGORY</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
             {Object.entries(CAT).map(([cat,cfg])=>(
-              <button key={cat} onClick={()=>setCategory(cat)} style={{padding:"8px 15px",borderRadius:99,border:`1px solid ${form.cat===cat?cfg.color:C.border}`,background:form.cat===cat?cfg.bg:"#1e1e1e",color:form.cat===cat?cfg.color:C.sub,fontWeight:form.cat===cat?700:400,fontSize:13,cursor:"pointer",transition:"all 0.18s",display:"flex",alignItems:"center",gap:6}}>
-                {CICO[cat]?CICO[cat](form.cat===cat?cfg.color:C.sub,13):null} {cat}
-              </button>
+              <button key={cat} onClick={()=>set("cat",cat)} style={{padding:"8px 15px",borderRadius:99,border:`1px solid ${form.cat===cat?cfg.color:C.border}`,background:form.cat===cat?cfg.bg:"#1e1e1e",color:form.cat===cat?cfg.color:C.sub,fontWeight:form.cat===cat?700:400,fontSize:13,cursor:"pointer",transition:"all 0.18s"}}>{cfg.icon} {cat}</button>
             ))}
           </div>
         </div>
@@ -340,7 +305,7 @@ function AddHabitModal({onSave,onClose}){
             </select>
           </div>
         </div>
-        <div style={{marginBottom:form.freq==="Custom"?12:26}}>
+        <div style={{marginBottom:26}}>
           <div style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.09em",marginBottom:9}}>FREQUENCY</div>
           <div style={{display:"flex",gap:7}}>
             {["Daily","Weekdays","Weekends","Custom"].map(f=>(
@@ -348,18 +313,7 @@ function AddHabitModal({onSave,onClose}){
             ))}
           </div>
         </div>
-        {form.freq==="Custom"&&(
-          <div style={{marginBottom:26}}>
-            <div style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.09em",marginBottom:9}}>SELECT DAYS</div>
-            <div style={{display:"flex",gap:6}}>
-              {DAYS.map(d=>(
-                <button key={d} onClick={()=>toggleDay(d)} style={{flex:1,padding:"9px 3px",borderRadius:10,border:`1px solid ${customDays.includes(d)?C.teal:C.border}`,background:customDays.includes(d)?C.tealD:"#1e1e1e",color:customDays.includes(d)?C.teal:C.sub,fontWeight:customDays.includes(d)?700:400,fontSize:10,cursor:"pointer",transition:"all 0.18s"}}>{d}</button>
-              ))}
-            </div>
-            {customDays.length===0&&<div style={{fontSize:11,color:C.coral,marginTop:7}}>Select at least one day</div>}
-          </div>
-        )}
-        <button onClick={save} disabled={form.freq==="Custom"&&customDays.length===0} style={{width:"100%",padding:"16px",borderRadius:17,border:"none",background:form.name.trim()&&!(form.freq==="Custom"&&customDays.length===0)?C.neon:"rgba(200,245,58,0.13)",color:form.name.trim()&&!(form.freq==="Custom"&&customDays.length===0)?"#000":"#444",fontWeight:900,fontSize:16,cursor:"pointer",boxShadow:form.name.trim()?`0 0 26px ${C.neonG}`:"none",transition:"all 0.22s"}}>
+        <button onClick={save} style={{width:"100%",padding:"16px",borderRadius:17,border:"none",background:form.name.trim()?C.neon:"rgba(200,245,58,0.13)",color:form.name.trim()?"#000":"#444",fontWeight:900,fontSize:16,cursor:form.name.trim()?"pointer":"not-allowed",boxShadow:form.name.trim()?`0 0 26px ${C.neonG}`:"none",transition:"all 0.22s"}}>
           {form.name.trim()?`+ Add "${form.name}"`:"Enter a name to continue"}
         </button>
       </div>
@@ -368,37 +322,18 @@ function AddHabitModal({onSave,onClose}){
 }
 
 // -- MACROS -------------------------------------------------------------------
-function MacrosScreen({water,setWater,waterGoal,setWaterGoal}){
+function MacrosScreen(){
   const [mode,setMode]=useState("type");
   const [query,setQuery]=useState("");
   const [loading,setLoading]=useState(false);
   const [result,setResult]=useState(null);
-  const [qty,setQty]=useState(1);
-  const [log,setLogRaw]=useState(()=>{
-    const today=new Date().toDateString();
-    const stored=lsGet('mom_macros_v2',{date:today,entries:[]});
-    // If stored date is today, return today's entries; otherwise start fresh
-    if(stored.date===today) return stored.entries;
-    // Archive old day's entries and start fresh
-    const archive=lsGet('mom_macros_archive',[]);
-    if(stored.entries&&stored.entries.length>0){
-      lsSet('mom_macros_archive',[{date:stored.date,entries:stored.entries},...archive]);
-    }
-    lsSet('mom_macros_v2',{date:today,entries:[]});
-    return [];
-  });
-  const [myFoods,setMyFoodsRaw]=useState(()=>lsGet('mom_my_foods',[]));
-  const [showMyFoods,setShowMyFoods]=useState(false);
+  const [log,setLog]=useState([]);
   const [manual,setManual]=useState(false);
   const [mf,setMf]=useState({name:"",cal:"",protein:"",carbs:"",fat:"",fiber:"",serving:"100g"});
-  const [editGoal,setEditGoal]=useState(false);
-  const [goalInput,setGoalInput]=useState(String(waterGoal));
   const [listening,setListening]=useState(false);
   const [scanning,setScanning]=useState(false);
   const [flash,setFlash]=useState(null);
   const fref=useRef();
-  const setLog=fn=>{setLogRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_macros_v2',{date:new Date().toDateString(),entries:next});return next;});};
-  const setMyFoods=fn=>{setMyFoodsRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_my_foods',next);return next;});};
   const tot=log.reduce((a,f)=>({cal:a.cal+f.cal,protein:a.protein+f.protein,carbs:a.carbs+f.carbs,fat:a.fat+f.fat,fiber:a.fiber+f.fiber}),{cal:0,protein:0,carbs:0,fat:0,fiber:0});
 
   async function search(q){
@@ -415,20 +350,13 @@ function MacrosScreen({water,setWater,waterGoal,setWaterGoal}){
     setLoading(false);
   }
 
-  function addToLog(food,q=1){
-    const item={id:Date.now(),name:food.name,icon:food.icon||"",cal:Number(food.cal)*q,protein:Number(food.protein)*q,carbs:Number(food.carbs)*q,fat:Number(food.fat)*q,fiber:Number(food.fiber)*q,serving:q>1?`${q}x ${food.serving||"1 serving"}`:food.serving||"1 serving",time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})};
-    setLog(p=>[...p,item]);setResult(null);setQuery("");setQty(1);
+  function addToLog(food){
+    const item={id:Date.now(),name:food.name,icon:food.icon||"",cal:Number(food.cal),protein:Number(food.protein),carbs:Number(food.carbs),fat:Number(food.fat),fiber:Number(food.fiber),serving:food.serving||"1 serving",time:new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"})};
+    setLog(p=>[...p,item]);setResult(null);setQuery("");
     setFlash(item.id);setTimeout(()=>setFlash(null),1800);
-    // save to My Foods library
-    setMyFoods(p=>{const existing=p.findIndex(x=>x.name.toLowerCase()===food.name.toLowerCase());const entry={...food,lastQty:q};if(existing>=0){const u=[...p];u[existing]=entry;return u;}return[entry,...p];});
   }
 
-  function addManual(){
-    if(!mf.name||!mf.cal)return;
-    addToLog({...mf,icon:""},qty);
-    setMf({name:"",cal:"",protein:"",carbs:"",fat:"",fiber:"",serving:"100g"});
-    setManual(false);setQty(1);
-  }
+  function addManual(){if(!mf.name||!mf.cal)return;addToLog({...mf,icon:""});setMf({name:"",cal:"",protein:"",carbs:"",fat:"",fiber:"",serving:"100g"});setManual(false);}
 
   function doVoice(){
     setListening(true);
@@ -455,44 +383,9 @@ function MacrosScreen({water,setWater,waterGoal,setWaterGoal}){
   );
 
   return(
-    <div style={{display:"flex",flexDirection:"column",gap:16}}>
+    <div style={{display:"flex",flexDirection:"column",gap:20}}>
       <style>{`@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes fS{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}`}</style>
       <div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.03em",color:C.text,margin:0}}>Macros</h2><p style={{fontSize:13,color:C.sub,marginTop:4}}>AI-powered nutrition tracker</p></div>
-
-      {/* Water tracker card */}
-      <div style={{background:`linear-gradient(135deg,rgba(59,130,246,0.13),rgba(59,130,246,0.05))`,border:"1px solid rgba(59,130,246,0.22)",borderRadius:20,padding:16}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",color:C.sub}}>HYDRATION TODAY</div>
-          <button onClick={()=>{setEditGoal(e=>!e);setGoalInput(String(waterGoal));}} style={{fontSize:11,fontWeight:700,color:editGoal?C.blue:C.sub,background:"transparent",border:`1px solid ${editGoal?C.blue:C.border}`,borderRadius:8,padding:"3px 8px",cursor:"pointer"}}>{editGoal?"cancel":"edit goal"}</button>
-        </div>
-        {editGoal&&(
-          <div style={{display:"flex",gap:8,marginBottom:12}}>
-            <input type="number" value={goalInput} onChange={e=>setGoalInput(e.target.value)} min="1" max="20"
-              style={{flex:1,background:"#1a1a1a",border:`1px solid ${C.blue}`,borderRadius:11,padding:"10px 12px",color:C.text,fontSize:16,fontWeight:800,outline:"none",fontFamily:"inherit"}}/>
-            <span style={{display:"flex",alignItems:"center",fontSize:13,color:C.sub}}>cups/day</span>
-            <button onClick={()=>{const g=Math.max(1,Math.min(20,Number(goalInput)));setWaterGoal(g);setEditGoal(false);}} style={{padding:"10px 16px",borderRadius:11,border:"none",background:C.blue,color:"#fff",fontWeight:800,cursor:"pointer"}}>Save</button>
-          </div>
-        )}
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <Ring pct={water/waterGoal} size={76} stroke={7} color={C.blue}>
-            <span style={{fontSize:19,fontWeight:900,color:C.blue}}>{water}</span>
-          </Ring>
-          <div style={{flex:1}}>
-            <div style={{fontSize:15,fontWeight:700,color:C.text,marginBottom:3}}>{water}/{waterGoal} cups</div>
-            <div style={{fontSize:12,color:C.sub,marginBottom:10}}>{water>=waterGoal?"Daily goal reached! 💧":`${waterGoal-water} cups to go`}</div>
-            <div style={{display:"flex",gap:7}}>
-              <button onClick={()=>setWater(w=>Math.max(0,w-1))} style={{width:34,height:34,borderRadius:"50%",border:"1px solid rgba(59,130,246,0.25)",background:"rgba(59,130,246,0.08)",color:C.blue,cursor:"pointer",fontSize:18,fontWeight:700,flexShrink:0}}>−</button>
-              <button onClick={()=>setWater(w=>Math.min(waterGoal+4,w+1))} style={{flex:1,padding:"8px",borderRadius:12,border:"none",background:C.blue,color:"#fff",fontWeight:800,fontSize:14,cursor:"pointer",boxShadow:"0 0 14px rgba(59,130,246,0.35)"}}>+ 1 Cup</button>
-              <button onClick={()=>setWater(w=>Math.min(waterGoal+4,w+2))} style={{flex:1,padding:"8px",borderRadius:12,border:"1px solid rgba(59,130,246,0.3)",background:"transparent",color:C.blue,fontWeight:700,fontSize:13,cursor:"pointer"}}>+ 2 Cups</button>
-            </div>
-          </div>
-        </div>
-        <div style={{display:"flex",gap:5,marginTop:12}}>
-          {Array.from({length:waterGoal},(_,i)=>(
-            <button key={i} onClick={()=>setWater(i+1)} style={{flex:1,height:28,borderRadius:6,border:"none",background:i<water?C.blue:"rgba(59,130,246,0.12)",cursor:"pointer",transition:"all 0.2s",boxShadow:i<water?"0 0 6px rgba(59,130,246,0.4)":"none"}}/>
-          ))}
-        </div>
-      </div>
 
       <div style={{background:"linear-gradient(135deg,rgba(255,107,107,0.12),rgba(245,158,11,0.07))",border:"1px solid rgba(255,107,107,0.2)",borderRadius:24,padding:20}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
@@ -534,35 +427,13 @@ function MacrosScreen({water,setWater,waterGoal,setWaterGoal}){
             <div style={{display:"flex",gap:8}}>
               <input value={query} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>e.key==="Enter"&&search(query)} placeholder='e.g. "grilled chicken 200g"'
                 style={{flex:1,background:"#1a1a1a",border:`1px solid ${C.borderHi}`,borderRadius:13,padding:"12px 15px",color:C.text,fontSize:14,outline:"none",fontFamily:"inherit"}}/>
-              <button onClick={()=>search(query)} style={{padding:"12px 17px",borderRadius:13,border:"none",background:C.neon,color:"#000",fontWeight:800,fontSize:16,cursor:"pointer"}}>🔍</button>
+              <button onClick={()=>search(query)} style={{padding:"12px 17px",borderRadius:13,border:"none",background:C.neon,color:"#000",fontWeight:800,fontSize:16,cursor:"pointer"}}></button>
             </div>
             <div style={{marginTop:11,display:"flex",gap:6,flexWrap:"wrap"}}>
               {["Chicken Breast","Oats","Banana","Eggs","Salmon","Whey Protein","Avocado","Brown Rice"].map(f=>(
                 <button key={f} onClick={()=>{setQuery(f);search(f);}} style={{padding:"5px 11px",borderRadius:99,border:`1px solid ${C.borderHi}`,background:"#1a1a1a",color:C.sub,fontSize:12,cursor:"pointer"}}>{f}</button>
               ))}
             </div>
-            {myFoods.length>0&&(
-              <div style={{marginTop:12}}>
-                <button onClick={()=>setShowMyFoods(s=>!s)} style={{display:"flex",alignItems:"center",gap:7,background:"transparent",border:"none",cursor:"pointer",padding:0}}>
-                  <span style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.08em"}}>MY FOODS ({myFoods.length})</span>
-                  <span style={{fontSize:10,color:C.sub,transform:showMyFoods?"rotate(180deg)":"none",display:"inline-block",transition:"transform 0.2s"}}>▼</span>
-                </button>
-                {showMyFoods&&(
-                  <div style={{marginTop:8,display:"flex",flexDirection:"column",gap:6}}>
-                    {myFoods.map(f=>(
-                      <button key={f.name} onClick={()=>{setResult(f);setQty(f.lastQty||1);}} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 12px",background:"#1a1a1a",borderRadius:12,border:`1px solid ${C.border}`,cursor:"pointer",textAlign:"left",width:"100%"}}>
-                        <span style={{fontSize:18}}>{f.icon||"🍽️"}</span>
-                        <div style={{flex:1}}>
-                          <div style={{fontSize:13,fontWeight:700,color:C.text}}>{f.name}</div>
-                          <div style={{fontSize:11,color:C.sub}}>{f.serving} · Last: {f.lastQty||1}x</div>
-                        </div>
-                        <div style={{textAlign:"right"}}><div style={{fontSize:13,fontWeight:800,color:C.coral}}>{f.cal} kcal</div></div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         )}
 
@@ -596,30 +467,20 @@ function MacrosScreen({water,setWater,waterGoal,setWaterGoal}){
 
         {result&&(
           <div style={{marginTop:15,background:"linear-gradient(135deg,rgba(200,245,58,0.08),rgba(200,245,58,0.02))",border:"1px solid rgba(200,245,58,0.22)",borderRadius:19,padding:17,animation:"fS 0.35s ease"}}>
-            <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:12}}>
-              <span style={{fontSize:28}}>{result.icon||"🍽️"}</span>
-              <div style={{flex:1}}><div style={{fontSize:16,fontWeight:800,color:C.text}}>{result.name}</div><div style={{fontSize:11,color:C.sub}}>Per {result.serving}</div>{result.note&&<div style={{fontSize:10,color:C.amber,marginTop:2}}>⚠ {result.note}</div>}</div>
-              <div style={{textAlign:"right"}}><div style={{fontSize:26,fontWeight:900,color:C.coral}}>{Math.round(result.cal*qty)}</div><div style={{fontSize:10,color:C.sub}}>kcal</div></div>
+            <div style={{display:"flex",alignItems:"center",gap:11,marginBottom:15}}>
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke={C.neon} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11c0 5 2.5 8 9 8s9-3 9-8"/><path d="M2 11h20"/><path d="M9 6c0-2 1-3 3-3s3 1 3 3"/><path d="M7 11c1-3 2-4 5-4s4 1 5 4"/></svg>
+              <div style={{flex:1}}><div style={{fontSize:16,fontWeight:800,color:C.text}}>{result.name}</div><div style={{fontSize:11,color:C.sub}}>Per {result.serving}</div>{result.note&&<div style={{fontSize:10,color:C.amber,marginTop:2}}> {result.note}</div>}</div>
+              <div style={{textAlign:"right"}}><div style={{fontSize:26,fontWeight:900,color:C.coral}}>{result.cal}</div><div style={{fontSize:10,color:C.sub}}>kcal</div></div>
             </div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:7,marginBottom:14}}>
-              {[{l:"Protein",v:result.protein*qty,c:C.coral},{l:"Carbs",v:result.carbs*qty,c:C.amber},{l:"Fat",v:result.fat*qty,c:C.purple},{l:"Fiber",v:result.fiber*qty,c:C.teal}].map(m=>(
+              {[{l:"Protein",v:result.protein,c:C.coral},{l:"Carbs",v:result.carbs,c:C.amber},{l:"Fat",v:result.fat,c:C.purple},{l:"Fiber",v:result.fiber,c:C.teal}].map(m=>(
                 <div key={m.l} style={{background:"#1a1a1a",borderRadius:11,padding:"9px 5px",textAlign:"center"}}>
-                  <div style={{fontSize:15,fontWeight:800,color:m.c}}>{Math.round(m.v)}<span style={{fontSize:9}}>g</span></div>
+                  <div style={{fontSize:15,fontWeight:800,color:m.c}}>{m.v}<span style={{fontSize:9}}>g</span></div>
                   <div style={{fontSize:10,color:C.sub}}>{m.l}</div>
                 </div>
               ))}
             </div>
-            {/* Quantity stepper */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,padding:"10px 14px",background:"rgba(255,255,255,0.04)",borderRadius:13}}>
-              <span style={{fontSize:12,fontWeight:700,color:C.sub}}>QUANTITY</span>
-              <div style={{display:"flex",alignItems:"center",gap:12}}>
-                <button onClick={()=>setQty(q=>Math.max(1,q-1))} style={{width:32,height:32,borderRadius:"50%",border:`1px solid ${C.border}`,background:"#1a1a1a",color:C.text,cursor:"pointer",fontSize:18,fontWeight:700}}>−</button>
-                <span style={{fontSize:20,fontWeight:900,color:C.neon,minWidth:24,textAlign:"center"}}>{qty}</span>
-                <button onClick={()=>setQty(q=>q+1)} style={{width:32,height:32,borderRadius:"50%",border:`1px solid ${C.neon}`,background:C.neonD,color:C.neon,cursor:"pointer",fontSize:18,fontWeight:700}}>+</button>
-              </div>
-              <span style={{fontSize:11,color:C.sub}}>{qty}× serving</span>
-            </div>
-            <button onClick={()=>addToLog(result,qty)} style={{width:"100%",padding:"13px",borderRadius:13,border:"none",background:C.neon,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer",boxShadow:`0 0 18px ${C.neonG}`}}>+ Add {qty>1?`${qty}×`:""} to Today's Log</button>
+            <button onClick={()=>addToLog(result)} style={{width:"100%",padding:"13px",borderRadius:13,border:"none",background:C.neon,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer",boxShadow:`0 0 18px ${C.neonG}`}}>+ Add to Today's Log</button>
           </div>
         )}
       </div>
@@ -691,8 +552,7 @@ function SleepScreen(){
   const [sleeping,setSleeping]=useState(false);
   const [bedStamp,setBedStamp]=useState(null);
   const [elapsed,setElapsed]=useState(0);
-  const [history,setHistoryRaw]=useState(()=>lsGet('mom_sleep',[]));
-  const setHistory=fn=>{setHistoryRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_sleep',next);return next;});};
+  const [history,setHistory]=useState(SLHIST);
   const [last,setLast]=useState(null);
   const [manual,setManual]=useState(false);
   const [mBed,setMBed]=useState("23:00");
@@ -831,10 +691,8 @@ function SleepScreen(){
 
 // -- ANALYTICS ----------------------------------------------------------------
 function AnalyticsScreen({habits}){
-  const sleepHistory=lsGet("mom_sleep",[]);
-  const todayLog=lsGet('mom_macros_v2',{entries:[]}).entries||[];
-  const archive=lsGet('mom_macros_archive',[]);
-  const macroLog=[...todayLog,...archive.flatMap(d=>d.entries||[])];
+  const sleepHistory=JSON.parse(localStorage.getItem("mom_sleep")||"[]");
+  const macroLog=JSON.parse(localStorage.getItem("mom_macros")||"[]");
 
   const doneCount=habits.filter(h=>h.done).length;
   const totalXP=habits.filter(h=>h.done).reduce((s,h)=>s+h.xp,0);
@@ -1224,196 +1082,6 @@ function ProfileScreen({habits,userName,profile,onUpdateWeight}){
           </div>
         ))}
       </div>
-
-      <WeightTrackerCard profile={profile}/>
-      <NotificationsCard/>
-    </div>
-  );
-}
-
-// -- WEIGHT TRACKER -----------------------------------------------------------
-function WeightTrackerCard({profile}){
-  const [log,setLogRaw]=useState(()=>lsGet('mom_weight_log',[]));
-  const [input,setInput]=useState(profile?.weight||"");
-  const [unit,setUnit]=useState(profile?.weightUnit||"kg");
-  const [range,setRange]=useState(7);
-  const setLog=fn=>{setLogRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_weight_log',next);return next;});};
-
-  function addEntry(){
-    const w=Number(input);if(!w||w<=0)return;
-    const today=new Date().toISOString().split("T")[0];
-    const entry={date:today,weight:w,unit};
-    setLog(p=>{const filtered=p.filter(x=>x.date!==today);return[...filtered,entry].sort((a,b)=>a.date.localeCompare(b.date));});
-    setInput("");
-  }
-
-  const filtered=log.filter(e=>{
-    const d=new Date();d.setDate(d.getDate()-range);
-    return new Date(e.date)>=d;
-  });
-
-  // Normalize all to same unit for graphing
-  const toKg=w=>unit==="lbs"?w/2.20462:w;
-  const pts=filtered.map(e=>({...e,kg:e.unit==="lbs"?e.weight/2.20462:e.weight}));
-  const vals=pts.map(p=>p.kg);
-  const minV=vals.length?Math.min(...vals)-1:60;
-  const maxV=vals.length?Math.max(...vals)+1:100;
-  const graphH=100;const graphW=280;
-  const xScale=pts.length>1?(graphW-24)/(pts.length-1):0;
-  const yScale=maxV>minV?graphH/(maxV-minV):1;
-  const points=pts.map((p,i)=>`${i===0?'M':'L'}${12+i*xScale},${graphH-(p.kg-minV)*yScale}`).join(" ");
-
-  const latest=pts.length?pts[pts.length-1]:null;
-  const prev7=pts.length>1?pts[0]:null;
-  const diff=latest&&prev7?((latest.kg-prev7.kg)).toFixed(1):null;
-
-  return(
-    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:17}}>
-      <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",color:C.sub,marginBottom:14}}>WEIGHT TRACKER</div>
-
-      {/* Log today */}
-      <div style={{marginBottom:14}}>
-        <input type="number" value={input} onChange={e=>setInput(e.target.value)} placeholder="e.g. 72.5"
-          style={{width:"100%",boxSizing:"border-box",background:"#1a1a1a",border:`1px solid ${C.borderHi}`,borderRadius:12,padding:"11px 13px",color:C.text,fontSize:16,fontWeight:800,outline:"none",fontFamily:"inherit",marginBottom:8}}/>
-        <div style={{display:"flex",gap:8}}>
-          <div style={{display:"flex",background:"#1a1a1a",borderRadius:12,border:`1px solid ${C.border}`,overflow:"hidden",flexShrink:0}}>
-            {["kg","lbs"].map(u=><button key={u} onClick={()=>setUnit(u)} style={{padding:"10px 16px",border:"none",background:unit===u?C.amber:"transparent",color:unit===u?"#000":C.sub,fontWeight:700,fontSize:13,cursor:"pointer"}}>{u}</button>)}
-          </div>
-          <button onClick={addEntry} style={{flex:1,padding:"10px",borderRadius:12,border:"none",background:C.amber,color:"#000",fontWeight:800,fontSize:14,cursor:"pointer"}}>Log Weight</button>
-        </div>
-      </div>
-
-      {pts.length>0&&(
-        <>
-          {/* Stats row */}
-          <div style={{display:"flex",gap:8,marginBottom:14}}>
-            <div style={{flex:1,background:"#1e1e1e",borderRadius:12,padding:"10px 12px",textAlign:"center"}}>
-              <div style={{fontSize:18,fontWeight:900,color:C.amber}}>{latest?`${latest.weight}${latest.unit}`:"--"}</div>
-              <div style={{fontSize:10,color:C.sub,marginTop:2}}>Latest</div>
-            </div>
-            {diff!==null&&<div style={{flex:1,background:"#1e1e1e",borderRadius:12,padding:"10px 12px",textAlign:"center"}}>
-              <div style={{fontSize:18,fontWeight:900,color:Number(diff)<=0?C.neon:C.coral}}>{Number(diff)>0?"+":""}{diff} kg</div>
-              <div style={{fontSize:10,color:C.sub,marginTop:2}}>Change</div>
-            </div>}
-            <div style={{flex:1,background:"#1e1e1e",borderRadius:12,padding:"10px 12px",textAlign:"center"}}>
-              <div style={{fontSize:18,fontWeight:900,color:C.purple}}>{pts.length}</div>
-              <div style={{fontSize:10,color:C.sub,marginTop:2}}>Entries</div>
-            </div>
-          </div>
-
-          {/* Range selector */}
-          <div style={{display:"flex",gap:6,marginBottom:12}}>
-            {[7,30,90].map(r=>(
-              <button key={r} onClick={()=>setRange(r)} style={{flex:1,padding:"7px",borderRadius:10,border:`1px solid ${range===r?C.amber:C.border}`,background:range===r?C.amberD:"#1a1a1a",color:range===r?C.amber:C.sub,fontWeight:range===r?700:400,fontSize:12,cursor:"pointer"}}>{r}d</button>
-            ))}
-          </div>
-
-          {/* Line graph */}
-          {pts.length>=2?(
-            <div style={{background:"#111",borderRadius:14,padding:"12px 8px 8px"}}>
-              <svg width="100%" viewBox={`0 0 ${graphW} ${graphH+24}`} preserveAspectRatio="none" style={{display:"block"}}>
-                {/* Grid lines */}
-                {[0,0.5,1].map(f=>(
-                  <line key={f} x1="12" y1={graphH*f} x2={graphW-12} y2={graphH*f} stroke="rgba(255,255,255,0.05)" strokeWidth="1"/>
-                ))}
-                {/* Area fill */}
-                <path d={`${points} L${12+(pts.length-1)*xScale},${graphH} L12,${graphH} Z`} fill={`rgba(245,158,11,0.08)`}/>
-                {/* Line */}
-                <path d={points} fill="none" stroke={C.amber} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{filter:"drop-shadow(0 0 4px rgba(245,158,11,0.6))"}}/>
-                {/* Dots */}
-                {pts.map((p,i)=>(
-                  <circle key={i} cx={12+i*xScale} cy={graphH-(p.kg-minV)*yScale} r="4" fill={C.amber} stroke="#111" strokeWidth="2"/>
-                ))}
-                {/* X labels */}
-                {pts.filter((_,i)=>i===0||i===pts.length-1||(pts.length<=7)).map((p,i,arr)=>(
-                  <text key={i} x={12+pts.indexOf(p)*xScale} y={graphH+16} textAnchor="middle" fontSize="9" fill={C.sub}>
-                    {p.date.slice(5)}
-                  </text>
-                ))}
-              </svg>
-            </div>
-          ):(
-            <div style={{textAlign:"center",padding:"16px 0",fontSize:12,color:C.sub}}>Log at least 2 entries to see the graph</div>
-          )}
-        </>
-      )}
-      {pts.length===0&&(
-        <div style={{textAlign:"center",padding:"16px 0",fontSize:13,color:C.sub}}>No entries yet — log your weight above to start tracking</div>
-      )}
-    </div>
-  );
-}
-
-// -- NOTIFICATIONS ------------------------------------------------------------
-function NotificationsCard(){
-  const [perm,setPerm]=useState(()=>typeof Notification!=='undefined'?Notification.permission:'unsupported');
-  const [enabled,setEnabled]=useState(()=>lsGet('mom_notif_enabled',false));
-  const [time,setTime]=useState(()=>lsGet('mom_notif_time','08:00'));
-  const [saved,setSaved]=useState(false);
-
-  async function requestPerm(){
-    if(typeof Notification==='undefined'){setPerm('unsupported');return;}
-    const p=await Notification.requestPermission();
-    setPerm(p);
-    if(p==='granted'){setEnabled(true);lsSet('mom_notif_enabled',true);}
-  }
-
-  function saveReminder(){
-    lsSet('mom_notif_time',time);lsSet('mom_notif_enabled',enabled);
-    setSaved(true);setTimeout(()=>setSaved(false),2000);
-    // Fire a test notification
-    if(perm==='granted'&&enabled){
-      try{new Notification('Momentum 🌿',{body:'Your daily reminder is set for '+time+'. Stay consistent!',icon:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌿</text></svg>'});}catch{}
-    }
-  }
-
-  function toggleEnabled(){
-    const next=!enabled;setEnabled(next);lsSet('mom_notif_enabled',next);
-    if(next&&perm!=='granted')requestPerm();
-  }
-
-  return(
-    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:20,padding:17}}>
-      <div style={{fontSize:11,fontWeight:700,letterSpacing:"0.1em",color:C.sub,marginBottom:14}}>DAILY REMINDER</div>
-      {perm==='unsupported'&&(
-        <div style={{fontSize:13,color:C.sub,lineHeight:1.6}}>Notifications are not supported in this browser. To get reminders, save this app to your iPhone Home Screen via Safari → Share → Add to Home Screen.</div>
-      )}
-      {perm!=='unsupported'&&(
-        <>
-          {perm==='denied'&&(
-            <div style={{fontSize:12,color:C.coral,marginBottom:12,lineHeight:1.6,background:"rgba(255,107,107,0.08)",borderRadius:12,padding:"10px 12px"}}>Notifications are blocked. Go to iPhone Settings → Safari → Notifications to allow them.</div>
-          )}
-          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-            <div>
-              <div style={{fontSize:14,fontWeight:700,color:C.text}}>Daily check-in reminder</div>
-              <div style={{fontSize:11,color:C.sub,marginTop:2}}>{enabled?"Reminder is on":"Tap to enable"}</div>
-            </div>
-            <button onClick={toggleEnabled} style={{width:50,height:28,borderRadius:99,border:"none",background:enabled?C.neon:"rgba(255,255,255,0.1)",cursor:"pointer",position:"relative",transition:"background 0.3s",flexShrink:0}}>
-              <div style={{width:20,height:20,borderRadius:"50%",background:"#fff",position:"absolute",top:4,left:enabled?26:4,transition:"left 0.25s",boxShadow:"0 1px 4px rgba(0,0,0,0.4)"}}/>
-            </button>
-          </div>
-          {(perm==='granted'||perm==='default')&&enabled&&(
-            <div>
-              <div style={{fontSize:10,fontWeight:700,color:C.sub,letterSpacing:"0.08em",marginBottom:8}}>REMINDER TIME</div>
-              <div style={{display:"flex",gap:8}}>
-                <input type="time" value={time} onChange={e=>setTime(e.target.value)}
-                  style={{flex:1,background:"#1a1a1a",border:`1px solid ${C.borderHi}`,borderRadius:13,padding:"12px 14px",color:C.text,fontSize:20,fontWeight:800,outline:"none",fontFamily:"inherit",colorScheme:"dark"}}/>
-                <button onClick={saveReminder} style={{padding:"12px 18px",borderRadius:13,border:"none",background:saved?C.neon:C.purple,color:saved?"#000":"#fff",fontWeight:800,fontSize:14,cursor:"pointer",transition:"all 0.3s",whiteSpace:"nowrap"}}>
-                  {saved?"Saved ✓":"Save"}
-                </button>
-              </div>
-              <div style={{fontSize:11,color:C.sub,marginTop:9,lineHeight:1.6}}>
-                For reminders to work on iOS, save Momentum to your Home Screen via Safari → Share → Add to Home Screen.
-              </div>
-            </div>
-          )}
-          {perm==='default'&&!enabled&&(
-            <button onClick={requestPerm} style={{width:"100%",padding:"13px",borderRadius:13,border:"none",background:C.purple,color:"#fff",fontWeight:800,fontSize:14,cursor:"pointer",boxShadow:"0 0 18px rgba(168,85,247,0.32)"}}>
-              Enable Notifications
-            </button>
-          )}
-        </>
-      )}
     </div>
   );
 }
@@ -1461,17 +1129,19 @@ function Onboarding({onDone}){
     // Step 1: Name
     <input value={d.name} onChange={e=>set("name",e.target.value)} placeholder="Enter your name..."
       style={{width:"100%",boxSizing:"border-box",background:"#1e1e1e",border:`1px solid ${d.name.trim()?C.purple:C.borderHi}`,borderRadius:16,padding:"16px 18px",color:C.text,fontSize:18,fontWeight:700,outline:"none",fontFamily:"inherit",textAlign:"center",marginBottom:8,transition:"border-color 0.2s"}}/>,
-    // Step 2: Age + Gender with slider + steppers
+    // Step 2: Age + Gender with slider
     <div style={{display:"flex",flexDirection:"column",gap:20,marginBottom:8,textAlign:"left"}}>
       <div>
-        <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em",marginBottom:12}}>AGE</div>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <button onClick={()=>set("age",String(Math.max(10,Number(d.age||25)-1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.border}`,background:"#1e1e1e",color:C.text,cursor:"pointer",fontSize:22,fontWeight:700}}>−</button>
-          <div style={{textAlign:"center"}}><span style={{fontSize:48,fontWeight:900,color:C.teal,letterSpacing:"-0.04em"}}>{d.age||"25"}</span><span style={{fontSize:14,fontWeight:600,color:C.sub,marginLeft:6}}>yrs</span></div>
-          <button onClick={()=>set("age",String(Math.min(80,Number(d.age||25)+1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.teal}`,background:C.tealD,color:C.teal,cursor:"pointer",fontSize:22,fontWeight:700}}>+</button>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em"}}>AGE</div>
+          <div style={{fontSize:36,fontWeight:900,color:C.teal,letterSpacing:"-0.04em"}}>{d.age||"25"}<span style={{fontSize:14,fontWeight:600,color:C.sub,marginLeft:4}}>yrs</span></div>
         </div>
         <input type="range" min="10" max="80" value={d.age||25} onChange={e=>set("age",e.target.value)}
           style={{width:"100%",height:6,appearance:"none",WebkitAppearance:"none",background:`linear-gradient(to right,${C.teal} 0%,${C.teal} ${((Number(d.age||25)-10)/70)*100}%,rgba(255,255,255,0.1) ${((Number(d.age||25)-10)/70)*100}%,rgba(255,255,255,0.1) 100%)`,borderRadius:99,outline:"none",cursor:"pointer"}}/>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+          <span style={{fontSize:11,color:C.muted}}>10</span>
+          <span style={{fontSize:11,color:C.muted}}>80</span>
+        </div>
       </div>
       <div>
         <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em",marginBottom:10}}>GENDER</div>
@@ -1480,22 +1150,20 @@ function Onboarding({onDone}){
         </div>
       </div>
     </div>,
-    // Step 3: Weight + Height with sliders + steppers
+    // Step 3: Weight + Height with sliders
     <div style={{display:"flex",flexDirection:"column",gap:22,marginBottom:8,textAlign:"left"}}>
       <div>
-        <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em",marginBottom:8}}>WEIGHT</div>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <button onClick={()=>set("weight",String(Math.max(d.weightUnit==="kg"?30:66,Number(d.weight||(d.weightUnit==="kg"?70:154))-1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.border}`,background:"#1e1e1e",color:C.text,cursor:"pointer",fontSize:22,fontWeight:700}}>−</button>
-          <div style={{textAlign:"center",display:"flex",alignItems:"baseline",gap:8}}>
-            <span style={{fontSize:48,fontWeight:900,color:C.amber,letterSpacing:"-0.04em"}}>{d.weight||(d.weightUnit==="kg"?"70":"154")}</span>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em"}}>WEIGHT</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:6}}>
+            <span style={{fontSize:36,fontWeight:900,color:C.amber,letterSpacing:"-0.04em"}}>{d.weight||70}</span>
             <UnitToggle opts={["kg","lbs"]} val={d.weightUnit} onChange={v=>{
-              const cur=Number(d.weight||(d.weightUnit==="kg"?70:154));
+              const cur=Number(d.weight||70);
               if(v==="lbs"&&d.weightUnit==="kg") set("weight",Math.round(cur*2.20462).toString());
               else if(v==="kg"&&d.weightUnit==="lbs") set("weight",Math.round(cur/2.20462).toString());
               set("weightUnit",v);
             }} color={C.amber}/>
           </div>
-          <button onClick={()=>set("weight",String(Math.min(d.weightUnit==="kg"?200:440,Number(d.weight||(d.weightUnit==="kg"?70:154))+1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.amber}`,background:C.amberD,color:C.amber,cursor:"pointer",fontSize:22,fontWeight:700}}>+</button>
         </div>
         {d.weightUnit==="kg"?(
           <input type="range" min="30" max="200" value={d.weight||70} onChange={e=>set("weight",e.target.value)}
@@ -1504,14 +1172,17 @@ function Onboarding({onDone}){
           <input type="range" min="66" max="440" value={d.weight||154} onChange={e=>set("weight",e.target.value)}
             style={{width:"100%",height:6,appearance:"none",WebkitAppearance:"none",background:`linear-gradient(to right,${C.amber} 0%,${C.amber} ${((Number(d.weight||154)-66)/374)*100}%,rgba(255,255,255,0.1) ${((Number(d.weight||154)-66)/374)*100}%,rgba(255,255,255,0.1) 100%)`,borderRadius:99,outline:"none",cursor:"pointer"}}/>
         )}
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+          <span style={{fontSize:11,color:C.muted}}>{d.weightUnit==="kg"?"30 kg":"66 lbs"}</span>
+          <span style={{fontSize:11,color:C.muted}}>{d.weightUnit==="kg"?"200 kg":"440 lbs"}</span>
+        </div>
       </div>
       <div>
-        <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em",marginBottom:8}}>HEIGHT</div>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-          <button onClick={()=>set("height",String(Math.max(d.heightUnit==="cm"?100:39,Number(d.height||(d.heightUnit==="cm"?170:67))-1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.border}`,background:"#1e1e1e",color:C.text,cursor:"pointer",fontSize:22,fontWeight:700}}>−</button>
-          <div style={{textAlign:"center",display:"flex",alignItems:"baseline",gap:8}}>
-            <span style={{fontSize:48,fontWeight:900,color:C.blue,letterSpacing:"-0.04em"}}>
-              {d.heightUnit==="cm"?(d.height||170):(()=>{const tot=Number(d.height||67);return `${Math.floor(tot/12)}'${tot%12}"`;})()}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:6}}>
+          <div style={{fontSize:11,fontWeight:700,color:C.sub,letterSpacing:"0.08em"}}>HEIGHT</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:6}}>
+            <span style={{fontSize:36,fontWeight:900,color:C.blue,letterSpacing:"-0.04em"}}>
+              {d.heightUnit==="cm"?(d.height||170):(()=>{const tot=Number(d.height||170);const ft=Math.floor(tot/12);const inch=tot%12;return `${ft}'${inch}"`;})()}
             </span>
             <UnitToggle opts={["cm","ft"]} val={d.heightUnit} onChange={v=>{
               const cur=Number(d.height||170);
@@ -1520,7 +1191,6 @@ function Onboarding({onDone}){
               set("heightUnit",v);
             }} color={C.blue}/>
           </div>
-          <button onClick={()=>set("height",String(Math.min(d.heightUnit==="cm"?230:91,Number(d.height||(d.heightUnit==="cm"?170:67))+1)))} style={{width:40,height:40,borderRadius:"50%",border:`1px solid ${C.blue}`,background:C.blueD,color:C.blue,cursor:"pointer",fontSize:22,fontWeight:700}}>+</button>
         </div>
         {d.heightUnit==="cm"?(
           <input type="range" min="100" max="230" value={d.height||170} onChange={e=>set("height",e.target.value)}
@@ -1529,6 +1199,10 @@ function Onboarding({onDone}){
           <input type="range" min="39" max="91" value={d.height||67} onChange={e=>set("height",e.target.value)}
             style={{width:"100%",height:6,appearance:"none",WebkitAppearance:"none",background:`linear-gradient(to right,${C.blue} 0%,${C.blue} ${((Number(d.height||67)-39)/52)*100}%,rgba(255,255,255,0.1) ${((Number(d.height||67)-39)/52)*100}%,rgba(255,255,255,0.1) 100%)`,borderRadius:99,outline:"none",cursor:"pointer"}}/>
         )}
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+          <span style={{fontSize:11,color:C.muted}}>{d.heightUnit==="cm"?"100 cm":"3'3\""}</span>
+          <span style={{fontSize:11,color:C.muted}}>{d.heightUnit==="cm"?"230 cm":"7'7\""}</span>
+        </div>
       </div>
     </div>,
     // Step 4: Summary
@@ -1627,10 +1301,8 @@ const NAV_SVG = [
 
 // -- WEEKLY REPORT ------------------------------------------------------------
 function WeeklyReport({habits,profile}){
-  const sleepHistory=lsGet("mom_sleep",[]);
-  const todayLog=lsGet('mom_macros_v2',{entries:[]}).entries||[];
-  const archive=lsGet('mom_macros_archive',[]);
-  const macroLog=[...todayLog,...archive.flatMap(d=>d.entries||[])];
+  const sleepHistory=JSON.parse(localStorage.getItem("mom_sleep")||"[]");
+  const macroLog=JSON.parse(localStorage.getItem("mom_macros")||"[]");
 
   const days=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
   const now=new Date();
@@ -1890,33 +1562,12 @@ TIP: [your tip here]`;
 }
 
 function App(){
-  const [onboarded,setOnboardedRaw]=useState(()=>lsGet('mom_onboarded',false));
-  const [profile,setProfileRaw]=useState(()=>lsGet('mom_profile',null));
+  const [onboarded,setOnboarded]=useState(false);
+  const [profile,setProfile]=useState(null);
   const [tab,setTab]=useState(0);
-  const [habits,setHabitsRaw]=useState(()=>{
-    const saved=lsGet('mom_habits',[]);
-    const lastDate=localStorage.getItem('mom_habits_date');
-    const today=new Date().toDateString();
-    if(lastDate!==today){
-      const reset=saved.map(h=>({...h,streak:h.done?h.streak+1:Math.max(0,h.streak-1>=0?h.streak:0),done:false,progress:0}));
-      lsSet('mom_habits',reset);localStorage.setItem('mom_habits_date',today);return reset;
-    }
-    return saved;
-  });
-  const [water,setWaterRaw]=useState(()=>{
-    const s=lsGet('mom_water',null);
-    const today=new Date().toDateString();
-    return(s&&s.date===today)?s.cups:0;
-  });
-  const [waterGoal,setWaterGoalRaw]=useState(()=>lsGet('mom_water_goal',8));
+  const [habits,setHabits]=useState(INIT);
   const [showAdd,setShowAdd]=useState(false);
   const [mounted,setMounted]=useState(false);
-
-  const setOnboarded=v=>{setOnboardedRaw(v);lsSet('mom_onboarded',v);};
-  const setProfile=fn=>{setProfileRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_profile',next);return next;});};
-  const setHabits=fn=>{setHabitsRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_habits',next);return next;});};
-  const setWater=fn=>{setWaterRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_water',{date:new Date().toDateString(),cups:next});return next;});};
-  const setWaterGoal=fn=>{setWaterGoalRaw(prev=>{const next=typeof fn==='function'?fn(prev):fn;lsSet('mom_water_goal',next);return next;});};
 
   useEffect(()=>{setTimeout(()=>setMounted(true),60);},[]);
 
@@ -1927,9 +1578,9 @@ function App(){
   const userName=profile?.name||"Friend";
 
   const screens=[
-    <HomeScreen   habits={habits} setHabits={setHabits} userName={userName} water={water} setWater={setWater} waterGoal={waterGoal}/>,
+    <HomeScreen   habits={habits} setHabits={setHabits} userName={userName}/>,
     <HabitsScreen habits={habits} setHabits={setHabits} onAdd={()=>setShowAdd(true)}/>,
-    <MacrosScreen water={water} setWater={setWater} waterGoal={waterGoal} setWaterGoal={setWaterGoal}/>,
+    <MacrosScreen/>,
     <SleepScreen/>,
     <AnalyticsScreen habits={habits}/>,
     <WeeklyReport habits={habits} profile={profile}/>,
